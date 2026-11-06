@@ -60,7 +60,8 @@ export function Hero() {
   useEffect(() => {
     const el = root.current;
     if (!el) return;
-    requestAnimationFrame(() => el.classList.add('is-in'));
+    // wait for the first-visit loader to start leaving, so the title rises into view rather than behind it
+    (window.fellerLoader ?? Promise.resolve()).then(() => requestAnimationFrame(() => el.classList.add('is-in')));
     if (reduced) return;
     const ctx = gsap.context(() => {
       gsap.to('[data-drift="title"]', { yPercent: -18, ease: 'none', scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true } });

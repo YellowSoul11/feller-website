@@ -40,8 +40,82 @@
         "sameAs": ["https://www.instagram.com/liem_feller/"]
       }
     </script>
+    <style>
+      /* First-visit loader: the logo draws itself while real load progress counts up. Lives here so it paints before the JS bundle. */
+      #loader{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:#151311;color:#FFF9ED;clip-path:inset(0 0 0 0);transition:clip-path .9s cubic-bezier(.76,0,.24,1)}
+      #loader.is-out{clip-path:inset(0 0 100% 0)}
+      .ld-in{display:grid;justify-items:center;gap:28px;transition:transform .9s cubic-bezier(.76,0,.24,1),opacity .5s}
+      #loader.is-out .ld-in{transform:translateY(-12vh);opacity:0}
+      .ld-logo{width:min(62vw,380px);height:auto;overflow:visible}
+      .ld-logo path{fill:#FFF9ED;fill-opacity:0;stroke:#FFF9ED;stroke-width:1.7;stroke-linejoin:round;stroke-dasharray:1 1;stroke-dashoffset:var(--d,1);transition:fill-opacity .45s ease calc(var(--i)*60ms),stroke-opacity .45s ease calc(var(--i)*60ms + .2s)}
+      .ld-logo .ld-dot{fill:#AA98FF;stroke:#AA98FF;transform-box:fill-box;transform-origin:center}
+      #loader.is-done .ld-l{fill-opacity:1;stroke-opacity:0}
+      #loader.is-done .ld-dot{fill-opacity:1;stroke-opacity:0;animation:ld-pop .6s cubic-bezier(.34,1.56,.64,1) .38s both}
+      @keyframes ld-pop{0%{scale:1}45%{scale:1.6}100%{scale:1}}
+      .ld-pct{display:flex;align-items:center;gap:14px;font:500 14px/1 "Assistant Variable",system-ui,sans-serif;letter-spacing:.08em;color:rgb(255 249 237/.6);font-variant-numeric:tabular-nums;transition:opacity .4s}
+      .ld-bar{width:min(40vw,160px);height:1px;background:rgb(255 249 237/.16);overflow:hidden}
+      .ld-bar i{display:block;height:100%;background:#AA98FF;transform-origin:left;transform:scaleX(var(--p,0))}
+      .ld-num{min-width:4ch;text-align:left}
+      #loader.is-done .ld-pct{opacity:0}
+      html.is-loading{overflow:hidden}
+    </style>
   </head>
   <body>
+    <div id="loader" aria-hidden="true">
+      <div class="ld-in">
+        <svg class="ld-logo" viewBox="-3 -3 338 107" aria-hidden="true"><path class="ld-l" style="--i:0" pathLength="1" d="M8 99V48H0V32H8V26C8 9 18 0 34 0H48V16H37C30 16 27 20 27 27V32H47V48H27V99Z" transform="translate(0 0)" /><path class="ld-l" style="--i:1" pathLength="1" d="M67 70H21C23 79 30 84 40 84C48 84 53 81 58 77L66 90C59 97 49 101 37 101C15 101 1 86 1 65C1 45 15 30 35 30C56 30 69 45 68 64Z M21 57H49C47 49 43 45 35 45C28 45 23 49 21 57Z" transform="translate(48 0)" /><path class="ld-l" style="--i:2" pathLength="1" d="M4 0H23V75C23 81 26 84 32 84H35V99H27C12 99 4 91 4 77Z" transform="translate(119 0)" /><path class="ld-l" style="--i:3" pathLength="1" d="M4 0H23V75C23 81 26 84 32 84H35V99H27C12 99 4 91 4 77Z" transform="translate(156 0)" /><path class="ld-l" style="--i:4" pathLength="1" d="M67 70H21C23 79 30 84 40 84C48 84 53 81 58 77L66 90C59 97 49 101 37 101C15 101 1 86 1 65C1 45 15 30 35 30C56 30 69 45 68 64Z M21 57H49C47 49 43 45 35 45C28 45 23 49 21 57Z" transform="translate(194 0)" /><path class="ld-l" style="--i:5" pathLength="1" d="M4 99V32H22V43C27 34 35 30 47 31V50C30 49 23 57 23 71V99Z" transform="translate(266 0)" /><g transform="translate(322 0)"><path class="ld-dot" style="--i:6" pathLength="1" d="M-9 90a9 9 0 1 0 18 0a9 9 0 1 0 -18 0Z" /></g></svg>
+        <div class="ld-pct" dir="ltr"><span class="ld-bar"><i></i></span><span class="ld-num">0%</span></div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var el = document.getElementById('loader');
+        var done;
+        window.fellerLoader = new Promise(function (r) { done = r; });
+        var skip = false;
+        try {
+          skip = matchMedia('(prefers-reduced-motion: reduce)').matches ||
+            (sessionStorage.getItem('feller-loaded') === '1' && !/[?&]loader/.test(location.search));
+        } catch (e) {}
+        if (skip) { el.remove(); done(); return; }
+        document.documentElement.classList.add('is-loading');
+        var paths = el.querySelectorAll('.ld-logo path');
+        var bar = el.querySelector('.ld-bar i');
+        var num = el.querySelector('.ld-num');
+        var n = paths.length, t0 = performance.now(), MIN = 1700, MAX = 6000;
+        // real milestones raise the ceiling; time keeps the drawing readable
+        var target = 15, shown = 0;
+        function raise(v) { target = Math.max(target, v); }
+        if (document.readyState !== 'loading') raise(35); else document.addEventListener('DOMContentLoaded', function () { raise(35); });
+        window.addEventListener('feller:app-ready', function () { raise(70); });
+        if (document.fonts) document.fonts.ready.then(function () { raise(target + 10); });
+        if (document.readyState === 'complete') raise(100); else window.addEventListener('load', function () { raise(100); });
+        function frame(now) {
+          var el2 = now - t0;
+          if (el2 > MAX) target = 100;
+          var cap = Math.min(target, (el2 / MIN) * 100);
+          shown += (cap - shown) * 0.12;
+          if (cap >= 100 && shown > 99.5) shown = 100;
+          var p = shown / 100;
+          for (var i = 0; i < n; i++) {
+            var a = i * 0.11, k = Math.min(1, Math.max(0, (p - a) / 0.36));
+            paths[i].style.setProperty('--d', (1 - k).toFixed(4));
+          }
+          bar.style.setProperty('--p', p.toFixed(4));
+          num.textContent = Math.round(shown) + '%';
+          if (shown < 100) return requestAnimationFrame(frame);
+          el.classList.add('is-done');
+          try { sessionStorage.setItem('feller-loaded', '1'); } catch (e) {}
+          setTimeout(function () {
+            el.classList.add('is-out');
+            document.documentElement.classList.remove('is-loading');
+            done();
+            setTimeout(function () { el.remove(); }, 1000);
+          }, 950);
+        }
+        requestAnimationFrame(frame);
+      })();
+    </script>
     <div id="root"></div>
     <noscript>
       <p style="padding:24px;font-family:system-ui">Feller Marketing · liem@feller.co.il · 052-9569659</p>
