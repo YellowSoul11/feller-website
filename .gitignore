@@ -1,0 +1,21 @@
+node_modules
+dist
+.env
+.env.local
+*.local
+# unlicensed font files must never be committed or deployed
+assets-source/fonts-unlicensed-ploni/
+Ploni*.woff2
+
+# kept local: reference-site captures, original photos and working research are not published
+research/
+assets-source/
+# local tooling (installed skills, editor/agent settings)
+.claude/
+.agents/
+.mcp.json
+skills-lock.json
+# original source files stay local
+/liem.png
+/Feller-*.svg
+*.tsbuildinfo

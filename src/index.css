@@ -1,0 +1,194 @@
+@import "tailwindcss";
+/* Assistant (SIL OFL 1.1, public/fonts/Assistant-OFL.txt), self-hosted variable 200–800 */
+@font-face {
+  font-family: "Assistant Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("/fonts/assistant-hebrew.woff2") format("woff2-variations");
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: "Assistant Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("/fonts/assistant-latin.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Typeface: one token. Swap to PLONI here once a webfont licence exists (research/font-options.md). */
+@theme {
+  --font-sans: "Assistant Variable", "Assistant", "Arial Hebrew", system-ui, sans-serif;
+
+  --color-ink: #151311;
+  --color-ink-2: #211e1a;
+  --color-ink-3: #2b2722;
+  --color-cream: #fff9ed;
+  --color-paper: #f3ecdf;
+  --color-lavender: #aa98ff;
+  --color-lavender-deep: #5a48c8;
+  --color-muted: #a9a398;
+  --color-muted-light: #5e5850;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+@layer base {
+:root {
+  --gutter: clamp(20px, 3.9vw, 56px);
+  --header-h: clamp(68px, 6.7vw, 96px);
+  --line: rgb(255 249 237 / 0.08);
+  --line-strong: rgb(255 249 237 / 0.16);
+  --dur-ui: 400ms;
+  --dur-reveal: 900ms;
+
+  /* fluid type, 390 → 1440 */
+  --fs-display: clamp(3.25rem, 1.66rem + 6.53vw, 7.5rem);
+  --fs-display-light: clamp(2rem, 1.3rem + 2.9vw, 4.5rem);
+  --fs-name: clamp(3.25rem, 1.5rem + 7.2vw, 9rem);
+  --fs-h2: clamp(2.6rem, 1.75rem + 3.5vw, 5.25rem);
+  --fs-h3: clamp(1.6rem, 1.2rem + 1.6vw, 2.75rem);
+  --fs-lead: clamp(1.125rem, 1rem + 0.5vw, 1.45rem);
+  --fs-body: clamp(1.0625rem, 1rem + 0.15vw, 1.125rem);
+  --fs-meta: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
+
+  color-scheme: dark;
+}
+
+html {
+  background: var(--color-ink);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  scrollbar-color: var(--color-ink-3) var(--color-ink);
+}
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: clip; }
+
+body {
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  overflow-x: clip;
+}
+
+::selection { background: var(--color-lavender); color: var(--color-ink); }
+
+:focus-visible {
+  outline: 2px solid var(--color-lavender);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+.on-light :focus-visible { outline-color: var(--color-lavender-deep); }
+
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+a { color: inherit; text-decoration: none; }
+
+}
+
+@layer components {
+.skip-link {
+  position: fixed; inset-inline-start: 16px; top: 12px; z-index: 100;
+  padding: 10px 18px; border-radius: 100px;
+  background: var(--color-lavender); color: var(--color-ink); font-weight: 600;
+  transform: translateY(-160%);
+  transition: transform var(--dur-ui) var(--ease-out);
+}
+.skip-link:focus-visible { transform: none; }
+
+.wrap {
+  width: 100%;
+  max-width: 1600px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* the lavender full stop from the logo */
+.dot { color: var(--color-lavender); }
+
+/* Buttons: fill reveals from the pointer position; focus gets the same treatment. */
+.btn {
+  --mx: 50%; --my: 50%; --fill: 0%;
+  position: relative; isolation: isolate; overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: center; gap: 14px;
+  min-height: 52px; padding: 0 28px; border-radius: 999px;
+  font-weight: 600; font-size: 1.0625rem; line-height: 1;
+  border: 1px solid currentColor;
+  transition: color var(--dur-ui) var(--ease-out), transform 160ms var(--ease-out), border-color var(--dur-ui) var(--ease-out);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn::before {
+  content: ""; position: absolute; inset: -1px; z-index: -1; border-radius: inherit;
+  background: var(--btn-fill, var(--color-cream));
+  clip-path: circle(var(--fill) at var(--mx) var(--my));
+  transition: clip-path 520ms var(--ease-out);
+}
+@media (hover: hover) {
+  .btn:hover::before { --fill: 150%; }
+  .btn:hover { color: var(--btn-ink, var(--color-ink)); }
+}
+.btn:focus-visible::before { --fill: 150%; }
+.btn:focus-visible { color: var(--btn-ink, var(--color-ink)); }
+.btn:active { transform: scale(0.97); }
+.btn .arrow { width: 30px; height: 10px; flex: none; transition: transform var(--dur-ui) var(--ease-out); }
+@media (hover: hover) { .btn:hover .arrow { transform: translateX(-6px); } }
+.btn:focus-visible .arrow { transform: translateX(-6px); }
+
+.btn-solid { background: var(--color-lavender); color: var(--color-ink); border-color: var(--color-lavender); --btn-fill: var(--color-cream); }
+.btn-ink { background: var(--color-ink); color: var(--color-cream); border-color: var(--color-ink); --btn-fill: var(--color-cream); --btn-ink: var(--color-ink); }
+.btn-ghost-ink { color: var(--color-ink); --btn-fill: var(--color-ink); --btn-ink: var(--color-cream); }
+
+/* Text links: underline draws in */
+.ulink { background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0% 1px; transition: background-size var(--dur-ui) var(--ease-out); padding-bottom: 2px; }
+@media (hover: hover) { .ulink:hover { background-size: 100% 1px; } }
+.ulink:focus-visible { background-size: 100% 1px; }
+
+/* vertical grid lines + falling dots */
+.gridlines {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  display: grid; grid-template-columns: repeat(var(--cols, 12), 1fr);
+  padding-inline: var(--gutter); max-width: 1600px; margin-inline: auto;
+}
+.gridlines > i { border-inline-start: 1px solid var(--line); position: relative; }
+.gridlines > i:last-child { border-inline-end: 1px solid var(--line); }
+.on-light .gridlines > i { border-color: rgb(21 19 17 / 0.06); }
+@media (max-width: 767px) { .gridlines { --cols: 4; } .gridlines > i:nth-child(n+5) { display: none; } }
+
+.fdot {
+  position: absolute; inset-inline-start: -3px; top: 0; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--color-lavender); box-shadow: 0 0 14px 2px rgb(170 152 255 / 0.45);
+  opacity: 0; animation: fall var(--d, 9s) linear var(--delay, 0s) infinite;
+}
+@keyframes fall {
+  0% { transform: translateY(-10vh); opacity: 0; }
+  8% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(110vh); opacity: 0; }
+}
+
+/* frames for real screenshots */
+.browser { border-radius: 12px; overflow: hidden; background: #0c0b0a; box-shadow: 0 30px 70px -20px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 249 237 / 0.09); }
+.browser-bar { height: 24px; display: flex; align-items: center; gap: 6px; padding-inline: 12px; background: #1d1a17; direction: ltr; }
+.browser-bar b { width: 7px; height: 7px; border-radius: 50%; background: #3b3631; }
+.phone { border-radius: 26px; overflow: hidden; box-shadow: 0 30px 70px -20px rgb(0 0 0 / 0.7), 0 0 0 5px #0c0b0a, 0 0 0 6px rgb(255 249 237 / 0.12); }
+.browser img, .phone img { display: block; width: 100%; height: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .fdot { display: none; }
+}
+
+}
